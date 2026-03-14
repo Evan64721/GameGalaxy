@@ -37,7 +37,6 @@
   .card-icon { font-size: 34px; display: block; margin-bottom: 10px; }
   .card-name { font-family: 'Orbitron', monospace; font-size: 10px; font-weight: 700; color: #c0d8ff; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 5px; }
   .card-desc { font-size: 11px; color: #4a6a99; line-height: 1.5; }
-  .card-best { font-size: 10px; color: #2a5a88; margin-top: 6px; font-family: 'Orbitron', monospace; }
 </style>
 </head>
 <body>
@@ -51,48 +50,78 @@
     <p>Your personal arcade — 11 games to explore</p>
   </header>
   <div class="score-bar">
-    <div class="score-item"><div class="score-label">Total Stars</div><div class="score-value" id="total-stars">0</div></div>
-    <div class="score-item"><div class="score-label">Games Played</div><div class="score-value" id="games-played">0</div></div>
+    <div class="score-item">
+      <div class="score-label">Total Stars</div>
+      <div class="score-value" id="total-stars">0</div>
+    </div>
+    <div class="score-item">
+      <div class="score-label">Games Played</div>
+      <div class="score-value" id="games-played">0</div>
+    </div>
   </div>
-  <div class="grid" id="grid"></div>
+  <div class="grid">
+    <a class="card" href="https://evan64721.github.io/GameGalaxy/reaction.html">
+      <span class="card-icon">⚡</span>
+      <div class="card-name">Reaction Timer</div>
+      <div class="card-desc">How fast can you react?</div>
+    </a>
+    <a class="card" href="https://evan64721.github.io/GameGalaxy/snake.html">
+      <span class="card-icon">🐍</span>
+      <div class="card-name">Snake</div>
+      <div class="card-desc">Eat food, grow longer.</div>
+    </a>
+    <a class="card" href="https://evan64721.github.io/GameGalaxy/memory.html">
+      <span class="card-icon">🧠</span>
+      <div class="card-name">Memory Match</div>
+      <div class="card-desc">Find all the pairs!</div>
+    </a>
+    <a class="card" href="https://evan64721.github.io/GameGalaxy/click.html">
+      <span class="card-icon">👆</span>
+      <div class="card-name">Click Speed</div>
+      <div class="card-desc">Click as fast as you can.</div>
+    </a>
+    <a class="card" href="https://evan64721.github.io/GameGalaxy/target.html">
+      <span class="card-icon">🎯</span>
+      <div class="card-name">Moving Target</div>
+      <div class="card-desc">Hit the moving target!</div>
+    </a>
+    <a class="card" href="https://evan64721.github.io/GameGalaxy/rps.html">
+      <span class="card-icon">✊</span>
+      <div class="card-name">Rock Paper Scissors</div>
+      <div class="card-desc">Beat the computer!</div>
+    </a>
+    <a class="card" href="https://evan64721.github.io/GameGalaxy/pong.html">
+      <span class="card-icon">🏓</span>
+      <div class="card-name">Pong</div>
+      <div class="card-desc">Classic paddle battle.</div>
+    </a>
+    <a class="card" href="https://evan64721.github.io/GameGalaxy/whack.html">
+      <span class="card-icon">🔨</span>
+      <div class="card-name">Whack-a-Mole</div>
+      <div class="card-desc">Smash those moles!</div>
+    </a>
+    <a class="card" href="https://evan64721.github.io/GameGalaxy/guess.html">
+      <span class="card-icon">🔢</span>
+      <div class="card-name">Number Guessing</div>
+      <div class="card-desc">Find the secret number.</div>
+    </a>
+    <a class="card" href="https://evan64721.github.io/GameGalaxy/ttt.html">
+      <span class="card-icon">⭕</span>
+      <div class="card-name">Tic-Tac-Toe</div>
+      <div class="card-desc">Beat the AI!</div>
+    </a>
+    <a class="card" href="https://evan64721.github.io/GameGalaxy/dodge.html">
+      <span class="card-icon">🚀</span>
+      <div class="card-name">Dodge Asteroids</div>
+      <div class="card-desc">Survive the asteroid field!</div>
+    </a>
+  </div>
 </div>
 <script src="stars.js"></script>
 <script>
-const BASE = 'https://evan64721.github.io/GameGalaxy/';
-const GAMES = [
-  { id:'reaction', name:'Reaction Timer',     icon:'⚡', desc:'How fast can you react?',     file:'reaction.html' },
-  { id:'snake',    name:'Snake',               icon:'🐍', desc:'Eat food, grow longer.',       file:'snake.html'    },
-  { id:'memory',   name:'Memory Match',        icon:'🧠', desc:'Find all the pairs!',          file:'memory.html'   },
-  { id:'click',    name:'Click Speed',         icon:'👆', desc:'Click as fast as you can.',    file:'click.html'    },
-  { id:'target',   name:'Moving Target',       icon:'🎯', desc:'Hit the moving target!',       file:'target.html'   },
-  { id:'rps',      name:'Rock Paper Scissors', icon:'✊', desc:'Beat the computer!',           file:'rps.html'      },
-  { id:'pong',     name:'Pong',                icon:'🏓', desc:'Classic paddle battle.',       file:'pong.html'     },
-  { id:'whack',    name:'Whack-a-Mole',        icon:'🔨', desc:'Smash those moles!',           file:'whack.html'    },
-  { id:'guess',    name:'Number Guessing',     icon:'🔢', desc:'Find the secret number.',      file:'guess.html'    },
-  { id:'ttt',      name:'Tic-Tac-Toe',         icon:'⭕', desc:'Beat the AI!',                file:'ttt.html'      },
-  { id:'dodge',    name:'Dodge Asteroids',     icon:'🚀', desc:'Survive the asteroid field!', file:'dodge.html'    },
-];
-
-const stats = JSON.parse(localStorage.getItem('gg-stats') || '{"stars":0,"played":0}');
-document.getElementById('total-stars').textContent = stats.stars;
-document.getElementById('games-played').textContent = stats.played;
-
-const scores = JSON.parse(localStorage.getItem('gg-scores') || '{}');
-const grid = document.getElementById('grid');
-GAMES.forEach(g => {
-  const best = scores[g.id];
-  const card = document.createElement('a');
-  card.className = 'card';
-  card.href = BASE + g.file;
-  card.onclick = e => { e.preventDefault(); navigate(BASE + g.file); };
-  card.innerHTML = `
-    <span class="card-icon">${g.icon}</span>
-    <div class="card-name">${g.name}</div>
-    <div class="card-desc">${g.desc}</div>
-    ${best && best.best ? `<div class="card-best">Best: ${best.best}</div>` : ''}
-  `;
-  grid.appendChild(card);
-});
+  const stats = JSON.parse(localStorage.getItem('gg-stats') || '{"stars":0,"played":0}');
+  document.getElementById('total-stars').textContent = stats.stars;
+  document.getElementById('games-played').textContent = stats.played;
 </script>
 </body>
 </html>
