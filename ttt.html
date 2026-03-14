@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tic-Tac-Toe — Game Galaxy</title>
+<link rel="stylesheet" href="style.css">
+<style>
+  #board{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-width:280px;margin:0 auto;}
+  .cell{
+    aspect-ratio:1; background:rgba(10,20,60,0.9);
+    border:1px solid rgba(60,120,255,0.25); border-radius:10px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:44px; cursor:pointer; user-select:none;
+    transition:background 0.15s, transform 0.1s;
+  }
+  .cell:hover:not(.taken){background:rgba(25,50,110,0.9);transform:scale(1.04);}
+  .cell.taken{cursor:default;}
+  .cell.win-cell{background:rgba(20,60,30,0.9);border-color:rgba(60,200,120,0.5);}
+  .x{color:#55aaff;} .o{color:#ff5566;}
+</style>
+</head>
+<body>
+<canvas id="starfield"></canvas>
+<div class="nebula nebula-1"></div>
+<div class="nebula nebula-2"></div>
+<div class="content">
+  <div class="game-wrap">
+    <a class="back-btn" href="https://evan64721.github.io/GameGalaxy/" onclick="event.preventDefault();navigate('https://evan64721.github.io/GameGalaxy/')">← Back to Galaxy</a>
+    <h2 class="game-title">⭕ Tic-Tac-Toe</h2>
+    <div class="msg" id="msg">You are X — make your move!</div>
+    <div id="board"></div>
+    <div class="stat-row" style="margin-top:16px;">
+      <div class="stat-item"><div class="stat-lbl">Wins</div><div class="stat-val" id="wins">0</div></div>
+      <div class="stat-item"><div class="stat-lbl">Draws</div><div class="stat-val" id="draws">0</div></div>
+      <div class="stat-item"><div class="stat-lbl">Losses</div><div class="stat-val" id="losses">0</div></div>
+    </div>
+    <div class="controls"><button class="btn" onclick="newGame()">New Game</button></div>
+  </div>
+</div>
+<script src="stars.js"></script>
+<script>
+  const lines=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+  let board,over,wins=0,draws=0,losses=0;
+
+  function newGame(){
+    board=new Array(9).fill(''); over=false;
+    document.getElementById('msg').textContent='You are X — make your move!';
+    const el=document.getElementById('board'); el.innerHTML='';
+    for(let i=0;i<9;i++){
+      const cell=document.createElement('div'); cell.className='cell'; cell.dataset.i=i;
+      cell.addEventListener('click',()=>playerMove(i)); el.appendChild(cell);
+    }
+  }
+
+  function playerMove(i){
+    if(over||board[i]) return;
+    board[i]='X'; render();
+    const win=checkWin('X');
+    if(win){highlight(win);over=true;wins++;updateStats();saveScore('ttt',{stars:2});document.getElementById('msg').textContent='🎉 You win!';return;}
+    if(board.every(c=>c)){over=true;draws++;updateStats();saveScore('ttt',{stars:1});document.getElementById('msg').textContent="It's a draw!";return;}
+    document.getElementById('msg').textContent='CPU thinking...';
+    setTimeout(()=>{
+      cpuMove(); render();
+      const cwin=checkWin('O');
+      if(cwin){highlight(cwin);over=true;losses++;updateStats();document.getElementById('msg').textContent='CPU wins!';return;}
+      if(board.every(c=>c)){over=true;draws++;updateStats();saveScore('ttt',{stars:1});document.getElementById('msg').textContent="Draw!";return;}
+      document.getElementById('msg').textContent='Your move!';
+    },400);
+  }
+
+  function cpuMove(){
+    for(const p of['O','X']){
+      for(const line of lines){
+        const mine=line.filter(i=>board[i]===p), empty=line.filter(i=>!board[i]);
+        if(mine.length===2&&empty.length===1){board[empty[0]]='O';return;}
+      }
+    }
+    if(!board[4]){board[4]='O';return;}
+    const corners=[0,2,6,8].filter(i=>!board[i]);
+    if(corners.length){board[corners[Math.floor(Math.random()*corners.length)]]='O';return;}
+    const empty=board.map((v,i)=>v?null:i).filter(v=>v!==null);
+    if(empty.length)board[empty[Math.floor(Math.random()*empty.length)]]='O';
+  }
+
+  function checkWin(p){return lines.find(line=>line.every(i=>board[i]===p))||null;}
+  function render(){
+    document.querySelectorAll('.cell').forEach((el,i)=>{
+      el.textContent=board[i];
+      el.className='cell'+(board[i]?' taken '+board[i].toLowerCase():'');
+    });
+  }
+  function highlight(line){line.forEach(i=>document.querySelector(`.cell[data-i="${i}"]`).classList.add('win-cell'));}
+  function updateStats(){
+    document.getElementById('wins').textContent=wins;
+    document.getElementById('draws').textContent=draws;
+    document.getElementById('losses').textContent=losses;
+  }
+  newGame();
+</script>
+</body>
+</html>

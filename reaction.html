@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reaction Timer — Game Galaxy</title>
+<link rel="stylesheet" href="style.css">
+<style>
+  #box {
+    width: 100%; max-width: 500px; height: 220px; margin: 0 auto;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 14px; cursor: pointer;
+    font-family: 'Orbitron', monospace; font-size: 18px; letter-spacing: 2px;
+    border: 1px solid rgba(60,120,255,0.2);
+    background: rgba(10,20,60,0.8); color: #3a5a88;
+    user-select: none; transition: background 0.3s, color 0.3s, border-color 0.3s;
+  }
+  #box.go { background: rgba(10,80,30,0.9); color: #44ff88; border-color: rgba(60,220,100,0.4); }
+  #box.early { background: rgba(80,10,10,0.9); color: #ff4444; border-color: rgba(220,60,60,0.4); }
+  #box.result { background: rgba(10,30,80,0.9); color: #aaccff; border-color: rgba(100,160,255,0.4); }
+</style>
+</head>
+<body>
+<canvas id="starfield"></canvas>
+<div class="nebula nebula-1"></div>
+<div class="nebula nebula-2"></div>
+<div class="content">
+  <div class="game-wrap">
+    <a class="back-btn" href="https://evan64721.github.io/GameGalaxy/" onclick="event.preventDefault();navigate('https://evan64721.github.io/GameGalaxy/')">← Back to Galaxy</a>
+    <h2 class="game-title">⚡ Reaction Timer</h2>
+    <div id="box" onclick="handleClick()">Click to Start</div>
+    <div class="msg" id="msg"></div>
+    <div class="stat-row">
+      <div class="stat-item"><div class="stat-lbl">Last</div><div class="stat-val" id="last">—</div></div>
+      <div class="stat-item"><div class="stat-lbl">Best</div><div class="stat-val" id="best">—</div></div>
+      <div class="stat-item"><div class="stat-lbl">Stars</div><div class="stat-val" id="stars">—</div></div>
+    </div>
+  </div>
+</div>
+<script src="stars.js"></script>
+<script>
+  let state = 'idle', startTime = 0, timer = null;
+  const saved = loadScore('reaction');
+  let best = saved.best || Infinity;
+  if (saved.best) document.getElementById('best').textContent = saved.best + 'ms';
+
+  function handleClick() {
+    const box = document.getElementById('box'), msg = document.getElementById('msg');
+    if (state === 'idle') {
+      state = 'waiting'; box.className = '';
+      box.textContent = 'Wait for green...'; msg.textContent = '';
+      timer = setTimeout(() => {
+        box.className = 'go'; box.textContent = 'CLICK NOW!';
+        startTime = Date.now(); state = 'go';
+      }, 1500 + Math.random() * 3500);
+    } else if (state === 'waiting') {
+      clearTimeout(timer); state = 'idle';
+      box.className = 'early'; box.textContent = 'Too early! Click to try again.';
+    } else if (state === 'go') {
+      const ms = Date.now() - startTime; state = 'idle';
+      document.getElementById('last').textContent = ms + 'ms';
+      if (ms < best) { best = ms; document.getElementById('best').textContent = ms + 'ms'; }
+      const s = ms < 200 ? 3 : ms < 350 ? 2 : 1;
+      document.getElementById('stars').textContent = '⭐'.repeat(s);
+      msg.textContent = s === 3 ? '⭐⭐⭐ Incredible!' : s === 2 ? '⭐⭐ Great!' : '⭐ Good try!';
+      box.className = 'result'; box.textContent = ms + 'ms — Click to play again';
+      saveScore('reaction', { best, stars: s });
+    }
+  }
+</script>
+</body>
+</html>

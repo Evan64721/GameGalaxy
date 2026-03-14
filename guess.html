@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Number Guessing — Game Galaxy</title>
+<link rel="stylesheet" href="style.css">
+<style>
+  .input-row{display:flex;gap:10px;justify-content:center;align-items:center;margin:16px 0;}
+  #guess-input{
+    background:rgba(5,10,30,0.9); border:1px solid rgba(60,120,255,0.35);
+    color:#aaccff; font-family:'Orbitron',monospace; font-size:22px;
+    text-align:center; padding:10px 18px; border-radius:8px; width:150px; outline:none;
+  }
+  #guess-input:focus{border-color:#88aaff;}
+  .hints{text-align:center;min-height:70px;padding:6px;}
+  .tag{display:inline-block;margin:3px;padding:4px 12px;border-radius:20px;font-family:'Orbitron',monospace;font-size:11px;}
+  .tag-low,.tag-high{background:rgba(10,20,60,0.8);color:#4466aa;}
+  .tag-warm{background:rgba(80,40,10,0.8);color:#ffaa44;}
+  .tag-correct{background:rgba(20,80,30,0.8);color:#44ee88;}
+  .range-bar{max-width:400px;margin:0 auto 10px;height:6px;background:rgba(30,60,130,0.5);border-radius:3px;}
+  #range-fill{height:100%;background:#3366cc;border-radius:3px;transition:width 0.3s,background 0.3s;width:100%;}
+</style>
+</head>
+<body>
+<canvas id="starfield"></canvas>
+<div class="nebula nebula-1"></div>
+<div class="nebula nebula-2"></div>
+<div class="content">
+  <div class="game-wrap">
+    <a class="back-btn" href="https://evan64721.github.io/GameGalaxy/" onclick="event.preventDefault();navigate('https://evan64721.github.io/GameGalaxy/')">← Back to Galaxy</a>
+    <h2 class="game-title">🔢 Number Guessing</h2>
+    <div style="text-align:center;color:#5577aa;font-size:13px;margin-bottom:8px;letter-spacing:1px;">I'm thinking of a number between 1 and 100</div>
+    <div class="range-bar"><div id="range-fill"></div></div>
+    <div class="input-row">
+      <input id="guess-input" type="number" min="1" max="100" placeholder="?">
+      <button class="btn" onclick="makeGuess()">Guess</button>
+    </div>
+    <div class="msg" id="msg">Enter a number and click Guess!</div>
+    <div class="hints" id="hints"></div>
+    <div class="stat-row">
+      <div class="stat-item"><div class="stat-lbl">Attempts</div><div class="stat-val" id="attempts">0</div></div>
+      <div class="stat-item"><div class="stat-lbl">Best</div><div class="stat-val" id="best">—</div></div>
+    </div>
+    <div class="controls"><button class="btn" onclick="newGame()">New Game</button></div>
+  </div>
+</div>
+<script src="stars.js"></script>
+<script>
+  let target,attempts,over;
+  const saved=loadScore('guess');
+  let best=saved.best||Infinity;
+  if(saved.best) document.getElementById('best').textContent=saved.best;
+
+  function newGame(){
+    target=Math.floor(Math.random()*100)+1; attempts=0; over=false;
+    document.getElementById('attempts').textContent='0';
+    document.getElementById('msg').textContent='Enter a number and click Guess!';
+    document.getElementById('hints').innerHTML='';
+    document.getElementById('guess-input').value='';
+    document.getElementById('range-fill').style.width='100%';
+    document.getElementById('range-fill').style.background='#3366cc';
+    document.getElementById('guess-input').focus();
+  }
+
+  function makeGuess(){
+    if(over) return;
+    const val=parseInt(document.getElementById('guess-input').value);
+    if(isNaN(val)||val<1||val>100){document.getElementById('msg').textContent='Enter a number 1–100!';return;}
+    attempts++; document.getElementById('attempts').textContent=attempts;
+    const hints=document.getElementById('hints');
+    const tag=document.createElement('span'); tag.className='tag';
+    const dist=Math.abs(val-target);
+    if(val===target){
+      tag.textContent=val+' ✓'; tag.className='tag tag-correct'; hints.appendChild(tag);
+      over=true; const s=attempts<=4?3:attempts<=7?2:1;
+      document.getElementById('msg').textContent='🎉 Got it in '+attempts+(attempts===1?' try!'>' tries!')+' '+'⭐'.repeat(s);
+      if(attempts<best){best=attempts; document.getElementById('best').textContent=best;}
+      document.getElementById('range-fill').style.width='100%';
+      document.getElementById('range-fill').style.background='#44ee88';
+      saveScore('guess',{best,stars:s});
+    } else {
+      const hot=dist<=5, warm=dist<=15;
+      tag.textContent=val+(val<target?' ↑':' ↓');
+      tag.className='tag '+(hot||warm?'tag-warm':(val<target?'tag-low':'tag-high'));
+      hints.appendChild(tag);
+      const pct=Math.max(5,100-(dist/50)*100);
+      document.getElementById('range-fill').style.width=pct+'%';
+      document.getElementById('range-fill').style.background=hot?'#ff8833':warm?'#ffaa44':'#3366cc';
+      document.getElementById('msg').textContent=(val<target?'📈 Too low!':'📉 Too high!')+(hot?' 🔥 Very close!':warm?' Getting warm!':'');
+    }
+    document.getElementById('guess-input').value='';
+    document.getElementById('guess-input').focus();
+  }
+
+  document.addEventListener('keydown',e=>{if(e.key==='Enter')makeGuess();});
+  newGame();
+</script>
+</body>
+</html>

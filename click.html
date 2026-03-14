@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Click Speed — Game Galaxy</title>
+<link rel="stylesheet" href="style.css">
+<style>
+  #box {
+    width:100%; max-width:500px; height:220px; margin:0 auto;
+    display:flex; align-items:center; justify-content:center;
+    border-radius:14px; cursor:pointer;
+    font-family:'Orbitron',monospace; font-size:28px; font-weight:700;
+    color:#88aaff; background:rgba(5,10,30,0.9);
+    border:1px solid rgba(60,120,255,0.2); user-select:none;
+    transition:background 0.1s, border-color 0.1s;
+  }
+  #box.active { border-color:rgba(100,180,255,0.5); background:rgba(10,25,70,0.9); }
+  #box:active { background:rgba(20,45,100,0.9); }
+</style>
+</head>
+<body>
+<canvas id="starfield"></canvas>
+<div class="nebula nebula-1"></div>
+<div class="nebula nebula-2"></div>
+<div class="content">
+  <div class="game-wrap">
+    <a class="back-btn" href="https://evan64721.github.io/GameGalaxy/" onclick="event.preventDefault();navigate('https://evan64721.github.io/GameGalaxy/')">← Back to Galaxy</a>
+    <h2 class="game-title">👆 Click Speed Test</h2>
+    <div id="box" onclick="doClick()">CLICK ME!</div>
+    <div class="msg" id="msg">Press Start then smash the box!</div>
+    <div class="stat-row">
+      <div class="stat-item"><div class="stat-lbl">Clicks</div><div class="stat-val" id="clicks">0</div></div>
+      <div class="stat-item"><div class="stat-lbl">Time</div><div class="stat-val" id="time">10s</div></div>
+      <div class="stat-item"><div class="stat-lbl">Best</div><div class="stat-val" id="best">0</div></div>
+    </div>
+    <div class="controls"><button class="btn" id="startBtn" onclick="startGame()">Start</button></div>
+  </div>
+</div>
+<script src="stars.js"></script>
+<script>
+  let count=0, running=false, timeLeft=10, interval=null;
+  const saved=loadScore('click');
+  let best=saved.best||0;
+  document.getElementById('best').textContent=best;
+
+  function startGame() {
+    if(running) return;
+    count=0; timeLeft=10; running=true;
+    document.getElementById('clicks').textContent='0';
+    document.getElementById('time').textContent='10s';
+    document.getElementById('msg').textContent='GO! Smash the box!';
+    document.getElementById('startBtn').disabled=true;
+    document.getElementById('box').classList.add('active');
+    clearInterval(interval);
+    interval=setInterval(()=>{
+      timeLeft--; document.getElementById('time').textContent=timeLeft+'s';
+      if(timeLeft<=0) {
+        clearInterval(interval); running=false;
+        document.getElementById('startBtn').disabled=false;
+        document.getElementById('box').classList.remove('active');
+        if(count>best){best=count; document.getElementById('best').textContent=best;}
+        const s=count>=80?3:count>=50?2:1;
+        document.getElementById('msg').textContent=count+' clicks! '+'⭐'.repeat(s);
+        saveScore('click',{best,stars:s});
+      }
+    },1000);
+  }
+
+  function doClick() {
+    if(!running) return;
+    count++; document.getElementById('clicks').textContent=count;
+  }
+</script>
+</body>
+</html>

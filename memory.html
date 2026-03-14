@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Memory Match — Game Galaxy</title>
+<link rel="stylesheet" href="style.css">
+<style>
+  .grid { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; max-width:360px; margin:0 auto; }
+  .card {
+    aspect-ratio:1; background:rgba(15,30,70,0.9);
+    border:1px solid rgba(60,120,255,0.25); border-radius:10px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:28px; cursor:pointer; user-select:none;
+    transition:transform 0.15s, background 0.2s;
+  }
+  .card:hover:not(.flipped):not(.matched) { transform:scale(1.06); background:rgba(25,50,100,0.9); }
+  .card.flipped { background:rgba(30,60,130,0.8); border-color:rgba(100,180,255,0.5); }
+  .card.matched { background:rgba(10,60,30,0.8); border-color:rgba(60,220,120,0.5); cursor:default; }
+</style>
+</head>
+<body>
+<canvas id="starfield"></canvas>
+<div class="nebula nebula-1"></div>
+<div class="nebula nebula-2"></div>
+<div class="content">
+  <div class="game-wrap">
+    <a class="back-btn" href="https://evan64721.github.io/GameGalaxy/" onclick="event.preventDefault();navigate('https://evan64721.github.io/GameGalaxy/')">← Back to Galaxy</a>
+    <h2 class="game-title">🧠 Memory Match</h2>
+    <div class="grid" id="grid"></div>
+    <div class="msg" id="msg">Find all matching pairs!</div>
+    <div class="stat-row">
+      <div class="stat-item"><div class="stat-lbl">Moves</div><div class="stat-val" id="moves">0</div></div>
+      <div class="stat-item"><div class="stat-lbl">Pairs</div><div class="stat-val" id="pairs">0/8</div></div>
+      <div class="stat-item"><div class="stat-lbl">Best</div><div class="stat-val" id="best">—</div></div>
+    </div>
+    <div class="controls"><button class="btn" onclick="init()">New Game</button></div>
+  </div>
+</div>
+<script src="stars.js"></script>
+<script>
+  const emojis = ['🪐','⭐','🌙','🚀','🛸','☄️','🌌','🌠'];
+  let cards, flipped, matched, moves, lock;
+  const saved = loadScore('memory');
+  let best = saved.best || Infinity;
+  if (saved.best) document.getElementById('best').textContent = saved.best;
+
+  function init() {
+    const syms = [...emojis,...emojis].sort(()=>Math.random()-0.5);
+    cards=syms; flipped=[]; matched=0; moves=0; lock=false;
+    document.getElementById('moves').textContent='0';
+    document.getElementById('pairs').textContent='0/8';
+    document.getElementById('msg').textContent='Find all matching pairs!';
+    const grid=document.getElementById('grid'); grid.innerHTML='';
+    syms.forEach((sym,i)=>{
+      const el=document.createElement('div'); el.className='card';
+      el.onclick=()=>flip(i,el); grid.appendChild(el);
+    });
+  }
+
+  function flip(i,el) {
+    if(lock||el.classList.contains('flipped')||el.classList.contains('matched')) return;
+    el.textContent=cards[i]; el.classList.add('flipped'); flipped.push({i,el});
+    if(flipped.length===2) {
+      lock=true; moves++; document.getElementById('moves').textContent=moves;
+      const [a,b]=flipped;
+      if(cards[a.i]===cards[b.i]) {
+        a.el.classList.add('matched'); b.el.classList.add('matched');
+        matched++; flipped=[]; lock=false;
+        document.getElementById('pairs').textContent=matched+'/8';
+        if(matched===8) {
+          const s=moves<=12?3:moves<=18?2:1;
+          document.getElementById('msg').textContent='🎉 Won in '+moves+' moves! '+'⭐'.repeat(s);
+          if(moves<best){best=moves; document.getElementById('best').textContent=best;}
+          saveScore('memory',{best,stars:s});
+        }
+      } else {
+        setTimeout(()=>{ a.el.textContent=''; a.el.classList.remove('flipped'); b.el.textContent=''; b.el.classList.remove('flipped'); flipped=[]; lock=false; },900);
+      }
+    }
+  }
+  init();
+</script>
+</body>
+</html>

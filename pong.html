@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pong — Game Galaxy</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<canvas id="starfield"></canvas>
+<div class="nebula nebula-1"></div>
+<div class="nebula nebula-2"></div>
+<div class="content">
+  <div class="game-wrap">
+    <a class="back-btn" href="https://evan64721.github.io/GameGalaxy/" onclick="event.preventDefault();navigate('https://evan64721.github.io/GameGalaxy/')">← Back to Galaxy</a>
+    <h2 class="game-title">🏓 Pong</h2>
+    <div class="canvas-wrap" style="max-width:500px;">
+      <canvas id="game" width="500" height="300"></canvas>
+    </div>
+    <div class="msg" id="msg">Move mouse over canvas to control your paddle</div>
+    <div class="stat-row">
+      <div class="stat-item"><div class="stat-lbl">You</div><div class="stat-val" id="you">0</div></div>
+      <div class="stat-item"><div class="stat-lbl">CPU</div><div class="stat-val" id="cpu">0</div></div>
+    </div>
+    <div class="controls"><button class="btn" id="startBtn" onclick="startGame()">Start Game</button></div>
+    <p class="hint">Move mouse to control left paddle • First to 7 wins</p>
+  </div>
+</div>
+<script src="stars.js"></script>
+<script>
+  const canvas=document.getElementById('game'), ctx=canvas.getContext('2d');
+  const W=500,H=300,PW=12,PH=70,BR=7;
+  let ball,paddleY,cpuY,scoreYou=0,scoreCpu=0,raf,running=false;
+
+  canvas.addEventListener('mousemove',e=>{
+    const r=canvas.getBoundingClientRect(), scaleY=H/r.height;
+    paddleY=(e.clientY-r.top)*scaleY-PH/2;
+  });
+  canvas.addEventListener('touchmove',e=>{
+    e.preventDefault();
+    const r=canvas.getBoundingClientRect(), scaleY=H/r.height;
+    paddleY=(e.touches[0].clientY-r.top)*scaleY-PH/2;
+  },{passive:false});
+
+  function clamp(v,a,b){return Math.max(a,Math.min(b,v));}
+
+  function startGame() {
+    ball={x:W/2,y:H/2,vx:4*(Math.random()>.5?1:-1),vy:3*(Math.random()>.5?1:-1)};
+    paddleY=H/2-PH/2; cpuY=H/2-PH/2; scoreYou=0; scoreCpu=0;
+    document.getElementById('you').textContent='0';
+    document.getElementById('cpu').textContent='0';
+    document.getElementById('msg').textContent='Move your mouse to control the paddle!';
+    document.getElementById('startBtn').textContent='Restart';
+    running=true; if(raf)cancelAnimationFrame(raf); loop();
+  }
+
+  function loop() {
+    if(!running) return;
+    ball.x+=ball.vx; ball.y+=ball.vy;
+    if(ball.y-BR<0){ball.y=BR;ball.vy=Math.abs(ball.vy);}
+    if(ball.y+BR>H){ball.y=H-BR;ball.vy=-Math.abs(ball.vy);}
+    paddleY=clamp(paddleY,0,H-PH);
+    const cc=cpuY+PH/2;
+    if(cc<ball.y-3)cpuY+=3; else if(cc>ball.y+3)cpuY-=3;
+    cpuY=clamp(cpuY,0,H-PH);
+    if(ball.x-BR<PW+14&&ball.y>paddleY&&ball.y<paddleY+PH){ball.vx=Math.abs(ball.vx)*1.04;ball.vy+=(ball.y-(paddleY+PH/2))*0.1;ball.x=PW+14+BR;}
+    if(ball.x+BR>W-PW-14&&ball.y>cpuY&&ball.y<cpuY+PH){ball.vx=-Math.abs(ball.vx)*1.04;ball.vy+=(ball.y-(cpuY+PH/2))*0.1;ball.x=W-PW-14-BR;}
+    ball.vx=clamp(ball.vx,-10,10); ball.vy=clamp(ball.vy,-8,8);
+    if(ball.x<0){scoreCpu++;document.getElementById('cpu').textContent=scoreCpu;ball={x:W/2,y:H/2,vx:4,vy:3*(Math.random()>.5?1:-1)};}
+    if(ball.x>W){scoreYou++;document.getElementById('you').textContent=scoreYou;ball={x:W/2,y:H/2,vx:-4,vy:3*(Math.random()>.5?1:-1)};}
+    if(scoreYou>=7||scoreCpu>=7){
+      running=false; const won=scoreYou>=7;
+      document.getElementById('msg').textContent=won?'🎉 You win!':'CPU wins! Try again.';
+      document.getElementById('startBtn').textContent='Play Again';
+      saveScore('pong',{stars:won?3:1}); draw(); return;
+    }
+    draw(); raf=requestAnimationFrame(loop);
+  }
+
+  function draw() {
+    ctx.fillStyle='#050a18'; ctx.fillRect(0,0,W,H);
+    ctx.setLineDash([8,8]); ctx.strokeStyle='rgba(60,100,200,0.25)';
+    ctx.beginPath(); ctx.moveTo(W/2,0); ctx.lineTo(W/2,H); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle='#3366cc'; ctx.fillRect(12,paddleY,PW,PH);
+    ctx.fillStyle='#cc3366'; ctx.fillRect(W-PW-12,cpuY,PW,PH);
+    ctx.fillStyle='#aaccff'; ctx.beginPath(); ctx.arc(ball.x,ball.y,BR,0,Math.PI*2); ctx.fill();
+  }
+
+  ctx.fillStyle='#050a18'; ctx.fillRect(0,0,W,H);
+  ctx.setLineDash([8,8]); ctx.strokeStyle='rgba(60,100,200,0.25)';
+  ctx.beginPath(); ctx.moveTo(W/2,0); ctx.lineTo(W/2,H); ctx.stroke(); ctx.setLineDash([]);
+</script>
+</body>
+</html>

@@ -1,0 +1,82 @@
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Exo 2', sans-serif;
+  background: #050a18;
+  color: #e0eaff;
+  min-height: 100vh;
+  overflow-x: hidden;
+  animation: fadeIn 0.5s ease forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+body.fade-out {
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+#starfield { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+
+.nebula { position: fixed; border-radius: 50%; filter: blur(80px); opacity: 0.1; pointer-events: none; z-index: 0; }
+.nebula-1 { width: 400px; height: 400px; background: #3355ff; top: -100px; left: -100px; }
+.nebula-2 { width: 350px; height: 350px; background: #aa33ff; bottom: -80px; right: -80px; }
+.nebula-3 { width: 250px; height: 250px; background: #0099ff; top: 40%; left: 60%; }
+
+.content { position: relative; z-index: 1; }
+
+h1 { font-family: 'Orbitron', monospace; font-weight: 900; letter-spacing: 4px; text-transform: uppercase; color: #fff; }
+h2 { font-family: 'Orbitron', monospace; font-weight: 700; letter-spacing: 2px; color: #fff; }
+
+.btn {
+  background: rgba(30,60,130,0.7);
+  border: 1px solid rgba(80,150,255,0.4);
+  color: #aaccff;
+  font-family: 'Exo 2', sans-serif;
+  font-size: 14px; padding: 10px 26px; border-radius: 8px;
+  cursor: pointer; letter-spacing: 1px;
+  transition: all 0.15s; text-decoration: none; display: inline-block;
+}
+.btn:hover { background: rgba(50,90,180,0.9); border-color: #88aaff; color: #fff; transform: translateY(-1px); }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+.back-btn {
+  display: inline-block; margin: 20px 0 16px;
+  background: transparent; border: 1px solid rgba(80,140,255,0.25);
+  color: #6688bb; font-family: 'Exo 2', sans-serif;
+  font-size: 12px; letter-spacing: 2px; text-transform: uppercase;
+  padding: 7px 16px; border-radius: 8px; cursor: pointer;
+  text-decoration: none; transition: all 0.15s;
+}
+.back-btn:hover { border-color: #88aaff; color: #aaccff; background: rgba(30,60,130,0.3); }
+
+.game-wrap { max-width: 620px; margin: 0 auto; padding: 0 20px 80px; }
+.game-title { text-align: center; font-size: 22px; margin-bottom: 20px; }
+
+.msg {
+  text-align: center; font-family: 'Orbitron', monospace;
+  font-size: 13px; color: #7099cc; min-height: 22px;
+  margin: 12px 0; letter-spacing: 1px;
+}
+
+.stat-row { display: flex; justify-content: center; gap: 28px; margin: 14px 0; }
+.stat-item { text-align: center; }
+.stat-lbl { font-size: 10px; color: #446688; letter-spacing: 2px; text-transform: uppercase; }
+.stat-val { font-family: 'Orbitron', monospace; font-size: 20px; color: #88ccff; }
+
+.controls { display: flex; gap: 10px; justify-content: center; margin-top: 14px; flex-wrap: wrap; }
+
+.canvas-wrap {
+  background: rgba(5,10,30,0.9);
+  border: 1px solid rgba(60,120,255,0.2);
+  border-radius: 12px; overflow: hidden; margin: 0 auto;
+}
+
+canvas { display: block; margin: 0 auto; }
+.hint { text-align: center; font-size: 11px; color: #334466; letter-spacing: 1px; margin-top: 8px; }

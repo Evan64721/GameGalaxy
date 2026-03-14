@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rock Paper Scissors — Game Galaxy</title>
+<link rel="stylesheet" href="style.css">
+<style>
+  .choices { display:flex; gap:16px; justify-content:center; margin:20px 0; }
+  .choice {
+    font-size:50px; width:96px; height:96px;
+    background:rgba(15,30,70,0.8); border:1px solid rgba(60,120,255,0.25);
+    border-radius:14px; cursor:pointer; display:flex; align-items:center;
+    justify-content:center; transition:transform 0.15s, border-color 0.15s, background 0.15s;
+    user-select:none;
+  }
+  .choice:hover { transform:scale(1.12); border-color:rgba(100,180,255,0.6); background:rgba(30,60,130,0.8); }
+  .result-row { display:flex; justify-content:center; align-items:center; gap:28px; font-size:60px; margin:12px 0; }
+  .outcome { font-family:'Orbitron',monospace; font-size:22px; font-weight:700; text-align:center; margin:8px 0; }
+  .win{color:#44ee88;} .lose{color:#ee4455;} .draw{color:#aabbcc;}
+  #result { min-height:110px; }
+</style>
+</head>
+<body>
+<canvas id="starfield"></canvas>
+<div class="nebula nebula-1"></div>
+<div class="nebula nebula-2"></div>
+<div class="content">
+  <div class="game-wrap">
+    <a class="back-btn" href="https://evan64721.github.io/GameGalaxy/" onclick="event.preventDefault();navigate('https://evan64721.github.io/GameGalaxy/')">← Back to Galaxy</a>
+    <h2 class="game-title">✊ Rock Paper Scissors</h2>
+    <div style="text-align:center;color:#5577aa;font-size:12px;letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;">Choose your weapon</div>
+    <div class="choices">
+      <div class="choice" onclick="play('rock')">✊</div>
+      <div class="choice" onclick="play('paper')">✋</div>
+      <div class="choice" onclick="play('scissors')">✌️</div>
+    </div>
+    <div id="result"></div>
+    <div class="stat-row">
+      <div class="stat-item"><div class="stat-lbl">Wins</div><div class="stat-val" id="wins">0</div></div>
+      <div class="stat-item"><div class="stat-lbl">Draws</div><div class="stat-val" id="draws">0</div></div>
+      <div class="stat-item"><div class="stat-lbl">Losses</div><div class="stat-val" id="losses">0</div></div>
+    </div>
+  </div>
+</div>
+<script src="stars.js"></script>
+<script>
+  const icons={rock:'✊',paper:'✋',scissors:'✌️'};
+  const beats={rock:'scissors',scissors:'paper',paper:'rock'};
+  let wins=0,draws=0,losses=0;
+
+  function play(choice) {
+    const cpu=['rock','paper','scissors'][Math.floor(Math.random()*3)];
+    let outcome,cls;
+    if(choice===cpu){outcome='DRAW';cls='draw';draws++;}
+    else if(beats[choice]===cpu){outcome='YOU WIN! 🎉';cls='win';wins++;saveScore('rps',{stars:1});}
+    else{outcome='YOU LOSE';cls='lose';losses++;}
+    document.getElementById('result').innerHTML=`
+      <div class="result-row"><span>${icons[choice]}</span><span style="font-size:16px;color:#446688;">VS</span><span>${icons[cpu]}</span></div>
+      <div class="outcome ${cls}">${outcome}</div>`;
+    document.getElementById('wins').textContent=wins;
+    document.getElementById('draws').textContent=draws;
+    document.getElementById('losses').textContent=losses;
+  }
+</script>
+</body>
+</html>
